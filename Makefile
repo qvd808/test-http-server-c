@@ -16,3 +16,6 @@ client.o: client.c
 
 clean:
 	rm -f *.o server client
+
+test_fork:
+	gcc -o test_fork test_fork.c

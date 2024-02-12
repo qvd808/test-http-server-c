@@ -29,7 +29,10 @@ int main(int argc, char *argv[])
     if (sockfd < 0) 
         error("ERROR opening socket");
     server = gethostbyname(argv[1]);
+    printf("server: %s\n", server->h_name);
+    printf("server: %s\n", server->h_addr_list);
     if (server == NULL) {
+
         fprintf(stderr,"ERROR, no such host\n");
         exit(0);
     }

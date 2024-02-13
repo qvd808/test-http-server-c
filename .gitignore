@@ -1,6 +1,4 @@
 *.o
-main
-log.*
-client
-server
-test*
+bin/*
+*test*
+log.txt

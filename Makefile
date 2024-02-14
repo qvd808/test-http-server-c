@@ -7,15 +7,17 @@ TEST_DIR = test
 TEST_FILES=$(wildcard $(TEST_DIR)/*.c)
 TEST_EXEC=$(patsubst $(TEST_DIR)/%.c, $(BIN_DIR)/%.o, $(TEST_FILES))
 
-EXECUTABLES=\
-$(BIN_DIR)/server.o \
-$(BIN_DIR)/client.o\
-$(BIN_DIR)/main.o
+SRC_FILES=$(wildcard $(SRC_DIR)/*.c)
 
-all: $(EXECUTABLES)
+OBJS=$(patsubst $(SRC_DIR)%.c, $(BIN_DIR)/%.o, $(SRC_FILES))
 
-$(BIN_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -o $@ $<
+
+all: $(OBJS)
+	gcc -c $(OBJS) -o main
+
+
+$(OBJS): $(SRC_FILES)
+	$(CC) -c $< -o $@
 
 test: $(TEST_EXEC)
 

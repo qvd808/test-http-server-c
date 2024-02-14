@@ -14,6 +14,10 @@ void error(char *msg)
 #define PORT 8000
 #define BUFFER_LENGTH 256
 
+int parse_request(char *request) {
+    return 0;
+}
+
 int main()
 {
 

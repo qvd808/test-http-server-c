@@ -8,16 +8,19 @@ TEST_FILES=$(wildcard $(TEST_DIR)/*.c)
 TEST_EXEC=$(patsubst $(TEST_DIR)/%.c, $(BIN_DIR)/%.o, $(TEST_FILES))
 
 SRC_FILES=$(wildcard $(SRC_DIR)/*.c)
-
-OBJS=$(patsubst $(SRC_DIR)%.c, $(BIN_DIR)/%.o, $(SRC_FILES))
-
-
-all: $(OBJS)
-	gcc -c $(OBJS) -o main
+OBJS= $(patsubst $(SRC_DIR)/%.c, $(BIN_DIR)/%.o, $(SRC_FILES))
 
 
-$(OBJS): $(SRC_FILES)
-	$(CC) -c $< -o $@
+
+all: $(BIN_DIR)/main.o $(BIN_DIR)/request.o
+	gcc $(BIN_DIR)/main.o $(BIN_DIR)/request.o -o $(BIN_DIR)/program.o
+
+
+$(BIN_DIR)/request.o:
+	gcc -c $(SRC_DIR)/request.c -o $(BIN_DIR)/request.o
+
+$(BIN_DIR)/main.o:
+	gcc -c $(SRC_DIR)/main.c -o $(BIN_DIR)/main.o
 
 test: $(TEST_EXEC)
 

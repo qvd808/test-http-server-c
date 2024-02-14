@@ -23,14 +23,13 @@ int parse_request(char *request) {
     int i, c;
     i = 0;
     c = 0;
-    printf("%u", request);
     char* temp;
     while (*(request + i) != '\0') {
         if (*(request + i) == '\n') {
             bzero(&temp, sizeof(temp));
             temp = malloc(i - c + 1);
-            c = i + 1;
             memcpy(temp, request + c, i);
+            c = i + 1;
             printf("This is the string: %s\n", temp);
             free(temp);
         }

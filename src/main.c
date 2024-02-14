@@ -19,30 +19,66 @@ struct Header {
     char* value;
 };
 
-void split_string(char *str, char c) {
+struct VectorString {
+    char** arr;
+    int len;
+};
+
+struct VectorString split_string(char *str, char c) {
     int start = 0;
     int end = 0;
+    
+    char** arr;
+    int len = 1;
     while (*(str + end) != '\0') {
         if ( *(str + end) == c) {
-            char* temp = malloc(end - start + 1);
-            memcpy(temp, str + start, end - start + 1 );
-            *(temp + (end - start)) = '\0';
-            printf("%s\n", temp);
-            start = end + 1;
-            free(temp);
+            len++;
         }
         end += 1;
     }
+    
+    end = 0;
+    arr = malloc(len * (sizeof(char *)));
+    int index = 0;
+
+    while (*(str + end) != '\0') {
+        if ( *(str + end) == c) {
+            arr[index] = malloc(end - start + 1); 
+            memcpy(arr[index], str + start, end - start + 1 );
+            arr[index][end - start] = '\0';
+            start = end + 1;
+            index += 1;
+        }
+
+        end += 1;
+    }
+
+    arr[index] = malloc(end - start + 1);
+    arr[index] = memcpy(arr[index], str + start, end - start + 1);
+
+    struct VectorString res;
+    res.arr = arr;
+    res.len = len;
+
+    return res; 
 }
 
 int parse_request(char *request) {
     
-        
+    struct VectorString res = split_string(request, '\n');
+    for (int i = 0; i < res.len - 1; i++) {
+        printf("%s\n", res.arr[i]);
+    }
+
+    for (int i = 0; i < res.len; i++) {
+        free(res.arr[i]);
+    }
+    free(res.arr);
     
     return 0;
 }
 
-int main()
+int main(int argc, char* argv[])
 {
 
     int sockfd, client_socketfd, client_len, portno;
@@ -56,7 +92,7 @@ int main()
     }
 
     bzero(&server_addr, sizeof(server_addr));
-    portno = htons(PORT);
+    portno = htons(atoi(argv[1]));
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = portno;
     server_addr.sin_addr.s_addr = INADDR_ANY;
@@ -91,7 +127,7 @@ int main()
         if (write(new_sockfd, reply, strlen(reply)) < 0) {
             error("Can not write to the socket");
         }
-        printf("%s", buffer);
+        // printf("%s", buffer);
 
         if (close(new_sockfd) < 0)
         { // After close socket will have somtime before it unbind from a port

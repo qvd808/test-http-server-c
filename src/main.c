@@ -55,8 +55,9 @@ int main()
         {
             error("Can't not read message");
         }
-
-        if (write(new_sockfd, "I got your message", 18) < 0) {
+        
+        char* reply = "HTTP/1.0 200 OK";
+        if (write(new_sockfd, reply, strlen(reply)) < 0) {
             error("Can not write to the socket");
         }
         printf("%s", buffer);

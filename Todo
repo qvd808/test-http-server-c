@@ -1,0 +1,24 @@
+1. Create a socket and accept connection
+2. Write a program that accepts a connection on a specific port, send 
+back HTTP 1.0
+3. Modify program to parse request
+4. Modify program to take another command line argument for "root" 
+directory
+5. Modify your program to take another command line argument for 
+the "root" directory. Make a directory somewhere, and put a 
+dummy HTML file called index.html and another dummy HTML
+ file called whatever you want. Add a dummy image file as well.
+  When your server starts up, verify that the folder exists 
+  and that your program has permissions to view the contents. 
+ Modify your program to parse the path from valid GET requests.
+ Upon parsing the path, check the root folder to see if a file 
+ matches that filename. If so, respond 200, read the file and
+ write the file to the client socket. If the path is "/"
+ (ie. the root directory) serve index.html. If the requested
+  file does not exist, respond 404 not found. 
+  Make sure your solution works for text files as well as binaries 
+  (ie. images).
+
+6. Add folder. Improve path-prsing logic
+7. Modify permission on a few dummy folders to make their read
+permission to the server program

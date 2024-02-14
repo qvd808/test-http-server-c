@@ -14,7 +14,29 @@ void error(char *msg)
 #define PORT 8000
 #define BUFFER_LENGTH 256
 
+struct Header {
+    char* key;
+    char* value;
+};
+
 int parse_request(char *request) {
+    int i, c;
+    i = 0;
+    c = 0;
+    printf("%u", request);
+    char* temp;
+    while (*(request + i) != '\0') {
+        if (*(request + i) == '\n') {
+            bzero(&temp, sizeof(temp));
+            temp = malloc(i - c + 1);
+            c = i + 1;
+            memcpy(temp, request + c, i);
+            printf("This is the string: %s\n", temp);
+            free(temp);
+        }
+        
+        i += 1;
+    } 
     return 0;
 }
 
@@ -60,6 +82,9 @@ int main()
             error("Can't not read message");
         }
         
+        if (parse_request(buffer) < 0) {
+            error("Can't not parse");
+        }
         char* reply = "HTTP/1.0 200 OK";
         if (write(new_sockfd, reply, strlen(reply)) < 0) {
             error("Can not write to the socket");

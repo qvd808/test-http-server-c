@@ -19,23 +19,26 @@ struct Header {
     char* value;
 };
 
-int parse_request(char *request) {
-    int i, c;
-    i = 0;
-    c = 0;
-    char* temp;
-    while (*(request + i) != '\0') {
-        if (*(request + i) == '\n') {
-            bzero(&temp, sizeof(temp));
-            temp = malloc(i - c + 1);
-            memcpy(temp, request + c, i);
-            c = i + 1;
-            printf("This is the string: %s\n", temp);
+void split_string(char *str, char c) {
+    int start = 0;
+    int end = 0;
+    while (*(str + end) != '\0') {
+        if ( *(str + end) == c) {
+            char* temp = malloc(end - start + 1);
+            memcpy(temp, str + start, end - start + 1 );
+            *(temp + (end - start)) = '\0';
+            printf("%s\n", temp);
+            start = end + 1;
             free(temp);
         }
+        end += 1;
+    }
+}
+
+int parse_request(char *request) {
+    
         
-        i += 1;
-    } 
+    
     return 0;
 }
 
@@ -67,8 +70,8 @@ int main()
 
     client_len = sizeof(client_addr);
 
-    while (1)
-    {
+    // while (1)
+    // {
         int new_sockfd = accept(sockfd, (struct sockaddr *)&client_addr, &client_len);
         if (new_sockfd < 0)
         {
@@ -94,7 +97,7 @@ int main()
         { // After close socket will have somtime before it unbind from a port
             error("Can not close listening socket");
         }
-    }
+    // }
 
     if (close(sockfd) < 0)
     {

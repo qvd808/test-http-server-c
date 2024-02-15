@@ -24,9 +24,9 @@ struct VectorString {
     int len;
 };
 
-struct VectorString split_string(char *str, char c);
-int parse_request(char *request);
 
-int test_func(char *);
+struct VectorString split_string(char *str, char c);
+int parse_request(char *request, struct Request req);
+
 
 #endif 

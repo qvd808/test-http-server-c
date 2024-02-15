@@ -58,8 +58,8 @@ int main(int argc, char* argv[])
         {
             error("Can't not read message");
         }
-        
-        if (parse_request(buffer) < 0) {
+        struct Request req; 
+        if (parse_request(buffer, req) < 0) {
             error("Can't not parse");
         }
         char *reply = 

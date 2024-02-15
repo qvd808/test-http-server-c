@@ -59,5 +59,7 @@ int parse_request(char *request, struct Request req)
         free(res.arr[i]);
     }
 
+    free(res.arr);
+
     return 0;
 }

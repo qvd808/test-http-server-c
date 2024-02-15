@@ -20,30 +20,23 @@ Map parse_header(char *str) {
     return res;
 }
 
-int parse_request(char *request, struct Request req)
+int parse_request(char *request, struct Request *req)
 {
 
     // Let assume first line is method, and the rest is header
 
     Vectorchar res = split_string(request, '\n');
-    Map *arr;
+    Map *arr = malloc(1);
     int len = 0;
     for (int i = 1; i < res.len; i++)
     {
         if (strlen(res.arr[i]) > 1)
         {
-            if (arr == NULL) {
-                arr = malloc(sizeof(Map));
-            } else {
-                arr = realloc(arr, sizeof(Map) * (len + 1));
-            } 
+            arr = realloc(arr, sizeof(Map) * (len + 1));
             
             Map key_value = parse_header(res.arr[i]);
-            arr[i].key = key_value.key;
-            arr[i].value = key_value.value;
-
-            free(key_value.key);
-            free(key_value.value);
+            arr[len].key = key_value.key;
+            arr[len].value = key_value.value;
 
             len += 1;
         }
@@ -55,9 +48,34 @@ int parse_request(char *request, struct Request req)
     //     printf("The value is:%s\n", arr[i].value);
     // }
 
-    free(arr);
+    req->header = malloc(sizeof(Header));
+    req->header->header_vec = arr;
+    req->header->len = len;
+    req->method = malloc(strlen(res.arr[0]));
+    memcpy(req->method, res.arr[0], strlen(res.arr[0]));
+
     print_vec_char(res);
     free_vec_char(&res);
 
     return 0;
+}
+
+void free_request(struct Request *req) {
+    // if (req->body != NULL) {
+    //     free(req->body);
+    // }
+
+    if (req->method != NULL) {
+    free(req->method);
+    }
+
+    if (req->header->header_vec != NULL) {
+        for (int i; i < req->header->len; i++) {
+            printf("%s\n", req->header->header_vec[i].key);
+
+            free(req->header->header_vec[i].key);
+            free(req->header->header_vec[i].value);
+        }
+        free(req->header->header_vec);
+    }
 }

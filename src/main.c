@@ -45,8 +45,8 @@ int main(int argc, char* argv[])
 
     client_len = sizeof(client_addr);
 
-    while (1)
-    {
+    // while (1)
+    // {
         int new_sockfd = accept(sockfd, (struct sockaddr *)&client_addr, &client_len);
         if (new_sockfd < 0)
         {
@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
             error("Can't not read message");
         }
         struct Request req; 
-        if (parse_request(buffer, req) < 0) {
+        if (parse_request(buffer, &req) < 0) {
             error("Can't not parse");
         }
         char *reply = 
@@ -84,7 +84,9 @@ int main(int argc, char* argv[])
         { // After close socket will have somtime before it unbind from a port
             error("Can not close listening socket");
         }
-    }
+
+        free_request(&req);
+    // }
 
     if (close(sockfd) < 0)
     {

@@ -68,16 +68,16 @@ Vectorchar split_string(char *str, char c)
 }
 ///////// Map Implement
 
-void init_vec_map(VectorMap *vec, Map **arr, int len) {
-    vec->arr = arr;
-    vec->len = len;
-}
+// void init_vec_map(VectorMap *vec, Map **arr, int len) {
+//     vec->arr = arr;
+//     vec->len = len;
+// }
 
-void free_vec_map(VectorMap *vec) {
+// void free_vec_map(VectorMap *vec) {
     
-    for (int i = 0; i < vec->len; i++) {
-        free(vec->arr[i]);
-    }
+//     for (int i = 0; i < vec->len; i++) {
+//         free(vec->arr[i]);
+//     }
 
-    free(vec->arr);
-}
+//     free(vec->arr);
+// }

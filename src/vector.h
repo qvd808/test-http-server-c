@@ -17,10 +17,10 @@ typedef struct Map {
 
 
 Vector(char);
-Vector(Map);
+// Vector(Map);
 
-void init_vec_map(VectorMap *vec, Map **arr, int len);
-void free_vec_map(VectorMap *vec);
+// void init_vec_map(VectorMap *vec, Map **arr, int len);
+// void free_vec_map(VectorMap *vec);
 
 void init_char(Vectorchar *vec, char **arr, int len);
 void print_vec_char(Vectorchar vec);

@@ -11,7 +11,7 @@
 
 struct Request {
     char *method;
-    VectorMap vec; 
+    Map *vec; 
     char* body;
 };
 int parse_request(char *request, struct Request req);

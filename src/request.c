@@ -26,9 +26,9 @@ int parse_request(char *request, struct Request req)
     // Let assume first line is method, and the rest is header
 
     Vectorchar res = split_string(request, '\n');
-    for (int i = 1; i < res.len - 2; i++)
+    for (int i = 1; i < res.len; i++)
     {
-        if (strlen(res.arr[i]) >= 1)
+        if (strlen(res.arr[i]) > 1)
         {
             Map key_value = parse_header(res.arr[i]);
             printf("The key is:%s\n", key_value.key);

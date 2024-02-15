@@ -10,11 +10,21 @@ typedef struct {\
     int len;\
 } Vector##TYPE;
 
-Vector(char);
+typedef struct Map {
+    char* key;
+    char* value;
+} Map;
 
-void init(Vectorchar *vec, char **arr, int len);
-void print_vec(Vectorchar vec);
-void free_vec(Vectorchar *vec);
+
+Vector(char);
+Vector(Map);
+
+void init_vec_map(VectorMap *vec, Map **arr, int len);
+void free_vec_map(VectorMap *vec);
+
+void init_char(Vectorchar *vec, char **arr, int len);
+void print_vec_char(Vectorchar vec);
+void free_vec_char(Vectorchar *vec);
 Vectorchar split_string(char *str, char c);
 
 #endif 

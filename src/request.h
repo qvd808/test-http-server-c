@@ -7,15 +7,11 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
-
-struct Header {
-    char* key;
-    char* value;
-};
+#include "vector.h"
 
 struct Request {
     char *method;
-    struct Header *header;
+    VectorMap vec; 
     char* body;
 };
 int parse_request(char *request, struct Request req);

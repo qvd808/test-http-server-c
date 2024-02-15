@@ -14,5 +14,7 @@ Vector(char);
 
 void init(Vectorchar *vec, char **arr, int len);
 void print_vec(Vectorchar vec);
+void free_vec(Vectorchar *vec);
+Vectorchar split_string(char *str, char c);
 
 #endif 

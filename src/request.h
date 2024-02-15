@@ -18,14 +18,6 @@ struct Request {
     struct Header *header;
     char* body;
 };
-
-struct VectorString {
-    char** arr;
-    int len;
-};
-
-
-struct VectorString split_string(char *str, char c);
 int parse_request(char *request, struct Request req);
 
 

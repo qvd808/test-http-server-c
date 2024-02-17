@@ -42,40 +42,32 @@ int parse_request(char *request, struct Request *req)
         }
     }
 
-    // for (int i = 0; i < len; i+=1) {
-
-    //     printf("The key is:%s\n", arr[i].key);
-    //     printf("The value is:%s\n", arr[i].value);
-    // }
-
     req->header = malloc(sizeof(Header));
     req->header->header_vec = arr;
     req->header->len = len;
-    req->method = malloc(strlen(res.arr[0]));
-    memcpy(req->method, res.arr[0], strlen(res.arr[0]));
-
-    print_vec_char(res);
+    req->method = malloc(strlen(res.arr[0]) + 1);
+    memcpy(req->method, res.arr[0], strlen(res.arr[0]) + 1);
+    req->body = malloc(8);
     free_vec_char(&res);
-
     return 0;
 }
 
 void free_request(struct Request *req) {
-    // if (req->body != NULL) {
-    //     free(req->body);
-    // }
-
-    if (req->method != NULL) {
-    free(req->method);
+    if (req->body) {
+        free(req->body);
     }
 
-    if (req->header->header_vec != NULL) {
-        for (int i; i < req->header->len; i++) {
-            printf("%s\n", req->header->header_vec[i].key);
+    if (req->method) {
+        free(req->method);
+    }
 
+    if (req->header->header_vec) {
+        for (int i = 0; i < req->header->len; i++) {
+            
             free(req->header->header_vec[i].key);
             free(req->header->header_vec[i].value);
         }
         free(req->header->header_vec);
     }
+    free(req->header);
 }

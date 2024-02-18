@@ -15,6 +15,21 @@ void error(char *msg)
 #define PORT 8000
 #define BUFFER_LENGTH 256
 
+char* get_file(char * request) {
+    
+    int end, start, i;
+    end = 5; start = 5; i = 5;
+    
+    while (*(request + i) != ' ') {
+        end += 1;
+        i += 1;
+    }
+    char *file = malloc(end - start + 1);
+    memcpy(file, request + start, end - start + 1);
+    file[end - start + 1] = '\0';
+
+    return file;
+}
 
 
 int main(int argc, char* argv[])
@@ -45,8 +60,8 @@ int main(int argc, char* argv[])
 
     client_len = sizeof(client_addr);
 
-    // while (1)
-    // {
+    while (1)
+    {
         int new_sockfd = accept(sockfd, (struct sockaddr *)&client_addr, &client_len);
         if (new_sockfd < 0)
         {
@@ -58,39 +73,35 @@ int main(int argc, char* argv[])
         {
             error("Can't not read message");
         }
-        struct Request req; 
-        struct Reply res;
-        if (parse_request(buffer, &req) < 0) {
-            error("Can't not parse");
-        }
-
-        handle_request(&req, &res);
+        char *file = get_file(buffer);        
 
         char *reply = 
         "HTTP/1.1 200 OK\n"
-        "Date: Thu, 19 Feb 2009 12:27:04 GMT\n"
-        "Server: Apache/2.2.3\n"
-        "Last-Modified: Wed, 18 Jun 2003 16:05:58 GMT\n"
-        "ETag: \"56d-9989200-1132c580\"\n"
         "Content-Type: text/html\n"
-        "Content-Length: 14\n"
-        "Accept-Ranges: bytes\n"
-        "Connection: close\n"
-        "\n"
-        "Received data\n";
+        // "Content-Length: 14\n"
+        // "Accept-Ranges: bytes\n"
+        // "Connection: close\n"
+        "\n";
+        int original_length = strlen(reply);
+        char test[1024];
+        memcpy(test, reply, original_length);
+        if (strcmp(file, "index.html") || strcmp(file, " ")) {
+            FILE *fptr = fopen("./public/index.html", "r");
+            fread(test + original_length, 1024 - original_length, 1, fptr);
+            printf("%s\n", test);
+        }
 
-        if (write(new_sockfd, reply, strlen(reply)) < 0) {
+        if (write(new_sockfd, test, strlen(test)) < 0) {
             error("Can not write to the socket");
         }
-        // printf("%s", buffer);
 
         if (close(new_sockfd) < 0)
         { // After close socket will have somtime before it unbind from a port
             error("Can not close listening socket");
         }
+        free(file);
 
-        free_request(&req);
-    // }
+    }
 
     if (close(sockfd) < 0)
     {

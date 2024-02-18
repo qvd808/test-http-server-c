@@ -59,9 +59,13 @@ int main(int argc, char* argv[])
             error("Can't not read message");
         }
         struct Request req; 
+        struct Reply res;
         if (parse_request(buffer, &req) < 0) {
             error("Can't not parse");
         }
+
+        handle_request(&req, &res);
+
         char *reply = 
         "HTTP/1.1 200 OK\n"
         "Date: Thu, 19 Feb 2009 12:27:04 GMT\n"

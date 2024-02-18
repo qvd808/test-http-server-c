@@ -19,7 +19,17 @@ struct Request {
     Header *header; 
     char* body;
 };
+
+struct Reply {
+    char *method;
+    char* body;
+    // Header *header;
+};
+
 int parse_request(char *request, struct Request *req);
 void free_request(struct Request *req);
+int handle_request(struct Request *req, struct Reply *rep);
+
+
 
 #endif 

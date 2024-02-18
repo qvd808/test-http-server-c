@@ -71,3 +71,34 @@ void free_request(struct Request *req) {
     }
     free(req->header);
 }
+
+int handle_request(struct Request *req, struct Reply *rep) {
+
+    if (!req->method) {
+        printf("There are no request\n");
+        return -1;
+    }
+
+    int start = 0;
+    int end = 0;
+    int i = 0;
+    while ((req->method)[i] != '/') {
+        start += 1;
+        end += 1;
+        i += 1;
+    }
+    while ((req->method)[i] != ' '){   
+        end += 1;
+        i += 1;
+    }
+    // printf("%s\n", req->method + end);
+
+    char* path = malloc(end - start + 1);
+    
+    memcpy(path, req->method + start, end - start);
+    // printf("%s\n", path);
+
+    free(path);
+
+    return 0;
+}

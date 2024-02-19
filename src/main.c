@@ -39,10 +39,8 @@ void process_respond(char **reply, char *file)
 {
     char *mine_type = strchr(file, '.');
     int lent = 18;
-    // printf("%s\n", mine_type);
-    // printf("%s\n", file);
     *reply = (char *)malloc(18);
-    // bzero(*reply, 18);
+    bzero(*reply, 18);
     strcat(*reply, "HTTP/1.1 200 OK\n");
 
     if (!mine_type)
@@ -183,7 +181,7 @@ int main(int argc, char *argv[])
         process_respond(&reply, file);
 
         int n = read_file_to_buffer(file, &buffer_file, &size_of_buffer);
-        printf("%s\n", reply);
+
         if (write(new_sockfd, reply, strlen(reply)) < 0)
         {
             error("Can not write to the socket");
@@ -208,7 +206,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-            wait(pid);
+            wait(&pid);
             if (buffer_file)
                 free(buffer_file);
             if (file)

@@ -18,15 +18,15 @@ void error(char *msg)
 char* get_file(char * request) {
     
     int end, start, i;
-    end = 5; start = 5; i = 5;
+    end = 4; start = 4; i = 4;
     
     while (*(request + i) != ' ') {
         end += 1;
         i += 1;
     }
-    char *file = malloc(end - start + 1);
-    memcpy(file, request + start, end - start + 1);
-    file[end - start + 1] = '\0';
+    char *file = malloc(end - start);
+    memcpy(file, request + start, end - start);
+    file[end - start] = '\0';
 
     return file;
 }
@@ -83,15 +83,29 @@ int main(int argc, char* argv[])
         // "Connection: close\n"
         "\n";
         int original_length = strlen(reply);
-        char test[1024];
-        memcpy(test, reply, original_length);
-        if (strcmp(file, "index.html") || strcmp(file, " ")) {
+        char respond_file[1024];
+        bzero(respond_file, 1024);
+        memcpy(respond_file, reply, original_length);
+        if ((strcmp(file, "/index.html") == 0) || (strcmp(file, "/") == 0)) {
             FILE *fptr = fopen("./public/index.html", "r");
-            fread(test + original_length, 1024 - original_length, 1, fptr);
-            printf("%s\n", test);
+            fread(respond_file + original_length, 1024 - original_length, 1, fptr);
+            printf("%s\n", respond_file);
+        } else {
+            char temp[256] = "./public";
+            strcat(temp, file);
+            FILE *fptr = fopen(temp, "r");
+            if (!fptr) {
+                // char* append_reply = "Can not find the resources for ";
+                // strcat(append_reply, file);
+                // printf("%s\n", append_reply);
+                strcat(respond_file, "Can not find the resouces.\n");
+                // strcat(respond_file, append_reply);
+            } else { 
+                fread(respond_file + original_length, 1024 - original_length, 1, fptr);
+            }
         }
 
-        if (write(new_sockfd, test, strlen(test)) < 0) {
+        if (write(new_sockfd, respond_file, strlen(respond_file)) < 0) {
             error("Can not write to the socket");
         }
 

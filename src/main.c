@@ -15,12 +15,16 @@ void error(char *msg)
 #define PORT 8000
 #define BUFFER_LENGTH 256
 
-char* get_file(char * request) {
-    
+char *get_file(char *request)
+{
+
     int end, start, i;
-    end = 4; start = 4; i = 4;
-    
-    while (*(request + i) != ' ') {
+    end = 4;
+    start = 4;
+    i = 4;
+
+    while (*(request + i) != ' ')
+    {
         end += 1;
         i += 1;
     }
@@ -31,8 +35,88 @@ char* get_file(char * request) {
     return file;
 }
 
+int process_file(char *file, char *respond_file)
+{
 
-int main(int argc, char* argv[])
+    bzero(respond_file, 1024);
+    if ((strcmp(file, "/index.html") == 0) || (strcmp(file, "/") == 0))
+    {
+        char *reply =
+            "HTTP/1.1 200 OK\n"
+            "Content-Type: text/html\n"
+            // "Content-Length: 14\n"
+            // "Accept-Ranges: bytes\n"
+            // "Connection: close\n"
+            "\n";
+        FILE *fptr = fopen("./public/index.html", "r");
+        int original_length = strlen(reply);
+        fread(respond_file + original_length, 1024 - original_length - 1, 1, fptr);
+        fclose(fptr);
+        memcpy(respond_file, reply, original_length);
+    }
+    else
+    {
+        char temp[256] = "./public";
+        strcat(temp, file);
+        FILE *fptr = fopen(temp, "r");
+        if (!fptr)
+        {
+            char *reply =
+                "HTTP/1.1 400 Not Found\n"
+                "Content-Type: text/html\n"
+                // "Content-Length: 14\n"
+                // "Accept-Ranges: bytes\n"
+                // "Connection: close\n"
+                "\n";
+            strcat(respond_file, reply);
+            strcat(respond_file, "Can not find the resouces.\n");
+
+        }
+        else
+        {
+            char reply[BUFFER_LENGTH] =
+                "HTTP/1.1 200 OK\n";
+            // "Content-Length: 14\n"
+            // "Accept-Ranges: bytes\n"
+            // "Connection: close\n"
+            char *mine_type = strchr(file, '.');
+            if (strcmp(mine_type, ".html") == 0)
+                strcat(reply, "Content-Type: text/html\n");
+
+            else if (strcmp(mine_type, ".js") == 0)
+                strcat(reply, "Content-Type: text/javascript\n");
+
+            else if (strcmp(mine_type, ".png") == 0)
+                strcat(reply, "Content-Type: image/png\n");
+
+            else if (strcmp(mine_type, ".gif") == 0)
+                strcat(reply, "Content-Type: image/gif\n");
+
+            else if (strcmp(mine_type, ".svg") == 0)
+                strcat(reply, "Content-Type: image/svg+xml\n");
+
+            else if (strcmp(mine_type, ".css") == 0)
+                strcat(reply, "Content-Type: text/css\n");
+
+            else if (strcmp(mine_type, ".jpg") == 0)
+                strcat(reply, "Content-Type: image/jpeg\n");
+
+            else
+                strcat(reply, "Content-Type: text/html\n");
+
+            int original_length = strlen(reply);
+            strcat(respond_file, reply);
+            fread(respond_file + original_length, 1024 - original_length - 1, 1, fptr);
+            fclose(fptr);
+        }
+    }
+
+    // What happened if we send a file that is too large?
+
+    return 0;
+}
+
+int main(int argc, char *argv[])
 {
 
     int sockfd, client_socketfd, client_len, portno;
@@ -73,36 +157,15 @@ int main(int argc, char* argv[])
         {
             error("Can't not read message");
         }
-        char *file = get_file(buffer);        
+        char *file = get_file(buffer);
 
-        char *reply = 
-        "HTTP/1.1 200 OK\n"
-        "Content-Type: text/html\n"
-        // "Content-Length: 14\n"
-        // "Accept-Ranges: bytes\n"
-        // "Connection: close\n"
-        "\n";
-        int original_length = strlen(reply);
         char respond_file[1024];
-        bzero(respond_file, 1024);
-        memcpy(respond_file, reply, original_length);
-        if ((strcmp(file, "/index.html") == 0) || (strcmp(file, "/") == 0)) {
-            FILE *fptr = fopen("./public/index.html", "r");
-            fread(respond_file + original_length, 1024 - original_length - 1, 1, fptr);
-            fclose(fptr);
-        } else {
-            char temp[256] = "./public";
-            strcat(temp, file);
-            FILE *fptr = fopen(temp, "r");
-            if (!fptr) {
-                strcat(respond_file, "Can not find the resouces.\n");
-            } else { 
-                fread(respond_file + original_length, 1024 - original_length - 1, 1, fptr);
-                fclose(fptr);
-            }
-        }
+        process_file(file, respond_file);
 
-        if (write(new_sockfd, respond_file, strlen(respond_file)) < 0) {
+        printf("%s\n", respond_file);
+
+        if (write(new_sockfd, respond_file, strlen(respond_file)) < 0)
+        {
             error("Can not write to the socket");
         }
 
@@ -111,14 +174,12 @@ int main(int argc, char* argv[])
             error("Can not close listening socket");
         }
         free(file);
-
     }
 
     if (close(sockfd) < 0)
     {
         error("Can not close socket");
     }
-
 
     return 0;
 }

@@ -24,7 +24,7 @@ char* get_file(char * request) {
         end += 1;
         i += 1;
     }
-    char *file = malloc(end - start);
+    char *file = malloc(end - start + 1);
     memcpy(file, request + start, end - start);
     file[end - start] = '\0';
 
@@ -88,20 +88,17 @@ int main(int argc, char* argv[])
         memcpy(respond_file, reply, original_length);
         if ((strcmp(file, "/index.html") == 0) || (strcmp(file, "/") == 0)) {
             FILE *fptr = fopen("./public/index.html", "r");
-            fread(respond_file + original_length, 1024 - original_length, 1, fptr);
-            printf("%s\n", respond_file);
+            fread(respond_file + original_length, 1024 - original_length - 1, 1, fptr);
+            fclose(fptr);
         } else {
             char temp[256] = "./public";
             strcat(temp, file);
             FILE *fptr = fopen(temp, "r");
             if (!fptr) {
-                // char* append_reply = "Can not find the resources for ";
-                // strcat(append_reply, file);
-                // printf("%s\n", append_reply);
                 strcat(respond_file, "Can not find the resouces.\n");
-                // strcat(respond_file, append_reply);
             } else { 
-                fread(respond_file + original_length, 1024 - original_length, 1, fptr);
+                fread(respond_file + original_length, 1024 - original_length - 1, 1, fptr);
+                fclose(fptr);
             }
         }
 

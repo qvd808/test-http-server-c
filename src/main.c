@@ -35,52 +35,62 @@ char *get_file(char *request)
     return file;
 }
 
-void process_respond(char *reply, char *file)
+void process_respond(char **reply, char *file)
 {
     char *mine_type = strchr(file, '.');
-    if (strcmp(mine_type, ".html") == 0)
+    int lent = 18;
+    // printf("%s\n", mine_type);
+    // printf("%s\n", file);
+    *reply = (char *)malloc(18);
+    // bzero(*reply, 18);
+    strcat(*reply, "HTTP/1.1 200 OK\n");
+
+    if (!mine_type)
     {
-        reply = malloc(strlen("Content-Type: text/html\n") + 1);
-        strcat(reply, "Content-Type: text/html\n");
+        *reply = (char *)realloc(*reply, lent + strlen("Content-Type: text/html\n\n"));
+        strcat(*reply, "Content-Type: text/html\n\n");
+    }
+    else if (strcmp(mine_type, ".html") == 0)
+    {
+        *reply = (char *)realloc(*reply, lent + strlen("Content-Type: text/html\n\n"));
+        strcat(*reply, "Content-Type: text/html\n\n");
     }
     else if (strcmp(mine_type, ".js") == 0)
     {
-        reply = malloc(strlen("Content-Type: text/javascript\n") + 1);
-        strcat(reply, "Content-Type: text/javascript\n");
+        *reply = (char *)realloc(*reply, lent + strlen("Content-Type: text/javascript\n\n"));
+        strcat(*reply, "Content-Type: text/javascript\n\n");
     }
     else if (strcmp(mine_type, ".png") == 0)
-
     {
-        reply = malloc(strlen("Content-Type: image/png\n") + 1);
-        strcat(reply, "Content-Type: image/png\n");
+        *reply = (char *)realloc(*reply, lent + strlen("Content-Type: image/png\n\n"));
+        strcat(*reply, "Content-Type: image/png\n\n");
     }
     else if (strcmp(mine_type, ".gif") == 0)
     {
-        reply = malloc(strlen("Content-Type: image/gif\n") + 1);
-        strcat(reply, "Content-Type: image/gif\n");
+        *reply = (char *)realloc(*reply, lent + strlen("Content-Type: image/gif\n\n"));
+        strcat(*reply, "Content-Type: image/gif\n\n");
     }
     else if (strcmp(mine_type, ".svg") == 0)
     {
-        reply = malloc(strlen("Content-Type: image/svg+xml\n") + 1);
-        strcat(reply, "Content-Type: image/svg+xml\n");
+        *reply = (char *)realloc(*reply, lent + strlen("Content-Type: image/svg+xml\n\n"));
+        strcat(*reply, "Content-Type: image/svg+xml\n\n");
     }
 
     else if (strcmp(mine_type, ".css") == 0)
     {
-        reply = malloc(strlen("Content-Type: text/css\n") + 1);
-        strcat(reply, "Content-Type: text/css\n");
+        *reply = (char *)realloc(*reply, lent + strlen("Content-Type: text/css\n\n"));
+        strcat(*reply, "Content-Type: text/css\n\n");
     }
 
     else if (strcmp(mine_type, ".jpg") == 0)
     {
-        reply = malloc(strlen("Content-Type: image/jpeg\n") + 1);
-        strcat(reply, "Content-Type: image/jpeg\n");
+        *reply = (char *)realloc(*reply, lent + strlen("Content-Type: image/jpeg\n\n"));
+        strcat(*reply, "Content-Type: image/jpeg\n\n");
     }
-
     else
     {
-        reply = malloc(strlen("Content-Type: text/html\n") + 1);
-        strcat(reply, "Content-Type: text/html\n");
+        *reply = (char *)realloc(*reply, lent + strlen("Content-Type: text/html\n\n"));
+        strcat(*reply, "Content-Type: text/html\n\n");
     }
 }
 
@@ -125,7 +135,7 @@ void handle_sigint(int sig)
 
 int main(int argc, char *argv[])
 {
-    signal(SIGINT, handle_sigint); 
+    signal(SIGINT, handle_sigint);
     int sockfd, client_socketfd, client_len, portno;
     char buffer[BUFFER_LENGTH];
     struct sockaddr_in server_addr, client_addr; // server address
@@ -168,13 +178,12 @@ int main(int argc, char *argv[])
 
         char *buffer_file;
         int size_of_buffer = 0;
-        char *reply = "HTTP/1.1 200 OK\n"
-                      "Content-Type: text/html\n"
-                    //   "Keep-Alive: timeout=5, max=1000\n"
-                      "\n";
+
+        char *reply;
+        process_respond(&reply, file);
 
         int n = read_file_to_buffer(file, &buffer_file, &size_of_buffer);
-
+        printf("%s\n", reply);
         if (write(new_sockfd, reply, strlen(reply)) < 0)
         {
             error("Can not write to the socket");
@@ -204,6 +213,8 @@ int main(int argc, char *argv[])
                 free(buffer_file);
             if (file)
                 free(file);
+            if (reply)
+                free(reply);
         }
 
         if (close(new_sockfd) < 0)

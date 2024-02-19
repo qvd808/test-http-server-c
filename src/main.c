@@ -4,7 +4,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
-#include "request.h"
+#include <signal.h>
 
 void error(char *msg)
 {
@@ -35,90 +35,97 @@ char *get_file(char *request)
     return file;
 }
 
-int process_file(char *file, char *respond_file)
+void process_respond(char *reply, char *file)
+{
+    char *mine_type = strchr(file, '.');
+    if (strcmp(mine_type, ".html") == 0)
+    {
+        reply = malloc(strlen("Content-Type: text/html\n") + 1);
+        strcat(reply, "Content-Type: text/html\n");
+    }
+    else if (strcmp(mine_type, ".js") == 0)
+    {
+        reply = malloc(strlen("Content-Type: text/javascript\n") + 1);
+        strcat(reply, "Content-Type: text/javascript\n");
+    }
+    else if (strcmp(mine_type, ".png") == 0)
+
+    {
+        reply = malloc(strlen("Content-Type: image/png\n") + 1);
+        strcat(reply, "Content-Type: image/png\n");
+    }
+    else if (strcmp(mine_type, ".gif") == 0)
+    {
+        reply = malloc(strlen("Content-Type: image/gif\n") + 1);
+        strcat(reply, "Content-Type: image/gif\n");
+    }
+    else if (strcmp(mine_type, ".svg") == 0)
+    {
+        reply = malloc(strlen("Content-Type: image/svg+xml\n") + 1);
+        strcat(reply, "Content-Type: image/svg+xml\n");
+    }
+
+    else if (strcmp(mine_type, ".css") == 0)
+    {
+        reply = malloc(strlen("Content-Type: text/css\n") + 1);
+        strcat(reply, "Content-Type: text/css\n");
+    }
+
+    else if (strcmp(mine_type, ".jpg") == 0)
+    {
+        reply = malloc(strlen("Content-Type: image/jpeg\n") + 1);
+        strcat(reply, "Content-Type: image/jpeg\n");
+    }
+
+    else
+    {
+        reply = malloc(strlen("Content-Type: text/html\n") + 1);
+        strcat(reply, "Content-Type: text/html\n");
+    }
+}
+
+int read_file_to_buffer(char *file, char **buffer, int *size_of_buffer)
 {
 
-    bzero(respond_file, 1024);
-    if ((strcmp(file, "/index.html") == 0) || (strcmp(file, "/") == 0))
+    FILE *fptr;
+    char public_dir[256] = "./public";
+    if (strcmp(file, "/") == 0)
     {
-        char *reply =
-            "HTTP/1.1 200 OK\n"
-            "Content-Type: text/html\n"
-            // "Content-Length: 14\n"
-            // "Accept-Ranges: bytes\n"
-            // "Connection: close\n"
-            "\n";
-        FILE *fptr = fopen("./public/index.html", "r");
-        int original_length = strlen(reply);
-        fread(respond_file + original_length, 1024 - original_length - 1, 1, fptr);
-        fclose(fptr);
-        memcpy(respond_file, reply, original_length);
+        fptr = fopen("./public/index.html", "r");
     }
     else
     {
-        char temp[256] = "./public";
-        strcat(temp, file);
-        FILE *fptr = fopen(temp, "r");
-        if (!fptr)
-        {
-            char *reply =
-                "HTTP/1.1 400 Not Found\n"
-                "Content-Type: text/html\n"
-                // "Content-Length: 14\n"
-                // "Accept-Ranges: bytes\n"
-                // "Connection: close\n"
-                "\n";
-            strcat(respond_file, reply);
-            strcat(respond_file, "Can not find the resouces.\n");
-
-        }
-        else
-        {
-            char reply[BUFFER_LENGTH] =
-                "HTTP/1.1 200 OK\n";
-            // "Content-Length: 14\n"
-            // "Accept-Ranges: bytes\n"
-            // "Connection: close\n"
-            char *mine_type = strchr(file, '.');
-            if (strcmp(mine_type, ".html") == 0)
-                strcat(reply, "Content-Type: text/html\n");
-
-            else if (strcmp(mine_type, ".js") == 0)
-                strcat(reply, "Content-Type: text/javascript\n");
-
-            else if (strcmp(mine_type, ".png") == 0)
-                strcat(reply, "Content-Type: image/png\n");
-
-            else if (strcmp(mine_type, ".gif") == 0)
-                strcat(reply, "Content-Type: image/gif\n");
-
-            else if (strcmp(mine_type, ".svg") == 0)
-                strcat(reply, "Content-Type: image/svg+xml\n");
-
-            else if (strcmp(mine_type, ".css") == 0)
-                strcat(reply, "Content-Type: text/css\n");
-
-            else if (strcmp(mine_type, ".jpg") == 0)
-                strcat(reply, "Content-Type: image/jpeg\n");
-
-            else
-                strcat(reply, "Content-Type: text/html\n");
-
-            int original_length = strlen(reply);
-            strcat(respond_file, reply);
-            fread(respond_file + original_length, 1024 - original_length - 1, 1, fptr);
-            fclose(fptr);
-        }
+        strcat(public_dir, file);
+        fptr = fopen(public_dir, "r");
     }
 
-    // What happened if we send a file that is too large?
+    if (!fptr)
+    {
+        return -1;
+    }
 
+    fseek(fptr, 0L, SEEK_END);
+    *size_of_buffer = ftell(fptr);
+    fseek(fptr, 0L, SEEK_SET);
+    *buffer = (char *)malloc(*size_of_buffer);
+
+    fread(*buffer, *size_of_buffer, 1, fptr);
+
+    fclose(fptr);
     return 0;
+
+    // What happened if we send a file that is too large?
+}
+
+void handle_sigint(int sig)
+{
+    exit(-1);
+    printf("Server setting down\n");
 }
 
 int main(int argc, char *argv[])
 {
-
+    signal(SIGINT, handle_sigint); 
     int sockfd, client_socketfd, client_len, portno;
     char buffer[BUFFER_LENGTH];
     struct sockaddr_in server_addr, client_addr; // server address
@@ -159,23 +166,53 @@ int main(int argc, char *argv[])
         }
         char *file = get_file(buffer);
 
-        char respond_file[1024];
-        process_file(file, respond_file);
+        char *buffer_file;
+        int size_of_buffer = 0;
+        char *reply = "HTTP/1.1 200 OK\n"
+                      "Content-Type: text/html\n"
+                    //   "Keep-Alive: timeout=5, max=1000\n"
+                      "\n";
 
-        printf("%s\n", respond_file);
+        int n = read_file_to_buffer(file, &buffer_file, &size_of_buffer);
 
-        if (write(new_sockfd, respond_file, strlen(respond_file)) < 0)
+        if (write(new_sockfd, reply, strlen(reply)) < 0)
         {
             error("Can not write to the socket");
+        }
+        pid_t pid = fork();
+
+        if (pid == 0)
+        {
+
+            if (n == 0)
+            {
+                if (write(new_sockfd, buffer_file, size_of_buffer) < 0)
+                {
+                    error("Can not write to the socket");
+                }
+            }
+            exit(EXIT_SUCCESS);
+        }
+        else if (pid < 0)
+        {
+            exit(EXIT_FAILURE);
+        }
+        else
+        {
+            wait(pid);
+            if (buffer_file)
+                free(buffer_file);
+            if (file)
+                free(file);
         }
 
         if (close(new_sockfd) < 0)
         { // After close socket will have somtime before it unbind from a port
             error("Can not close listening socket");
         }
-        free(file);
     }
 
+    // safe_exit:
     if (close(sockfd) < 0)
     {
         error("Can not close socket");

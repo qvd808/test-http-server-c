@@ -12,14 +12,8 @@ OBJS= $(patsubst $(SRC_DIR)/%.c, $(BIN_DIR)/%.o, $(SRC_FILES))
 
 
 
-all: $(BIN_DIR)/main.o $(BIN_DIR)/request.o $(BIN_DIR)/vector.o
-	gcc $(BIN_DIR)/main.o $(BIN_DIR)/request.o $(BIN_DIR)/vector.o -o $(BIN_DIR)/program.o
-
-$(BIN_DIR)/vector.o:
-	gcc -c $(SRC_DIR)/vector.c -o $(BIN_DIR)/vector.o
-
-$(BIN_DIR)/request.o:
-	gcc -c $(SRC_DIR)/request.c -o $(BIN_DIR)/request.o
+all: $(BIN_DIR)/main.o
+	gcc $(BIN_DIR)/main.o -o $(BIN_DIR)/program.o
 
 $(BIN_DIR)/main.o:
 	gcc -c $(SRC_DIR)/main.c -o $(BIN_DIR)/main.o

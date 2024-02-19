@@ -178,42 +178,58 @@ int main(int argc, char *argv[])
         int size_of_buffer = 0;
 
         char *reply;
-        process_respond(&reply, file);
 
         int n = read_file_to_buffer(file, &buffer_file, &size_of_buffer);
 
-        if (write(new_sockfd, reply, strlen(reply)) < 0)
+        if (n == 0)
         {
-            error("Can not write to the socket");
-        }
-        pid_t pid = fork();
+            process_respond(&reply, file);
 
-        if (pid == 0)
-        {
-
-            if (n == 0)
+            if (write(new_sockfd, reply, strlen(reply)) < 0)
             {
+                error("Can not write to the socket");
+            }
+            pid_t pid = fork();
+
+            if (pid < 0)
+            {
+                exit(EXIT_FAILURE);
+            }
+            else if (pid == 0)
+            {
+
                 if (write(new_sockfd, buffer_file, size_of_buffer) < 0)
                 {
                     error("Can not write to the socket");
                 }
+                exit(EXIT_SUCCESS);
             }
-            exit(EXIT_SUCCESS);
-        }
-        else if (pid < 0)
-        {
-            exit(EXIT_FAILURE);
+            else
+            {
+                wait(&pid);
+            }
         }
         else
         {
-            wait(&pid);
-            if (buffer_file)
-                free(buffer_file);
-            if (file)
-                free(file);
-            if (reply)
-                free(reply);
+            char *fail_message = "HTTP/1.1 400 Not Found\n"
+                                 "Content-Type: text/html\n"
+                                 "Content-Length: 27\n"
+                                 "Connection: close\n"
+                                 "\n"
+                                 "Can not find the resources\n";
+
+            if (write(new_sockfd, fail_message, strlen(fail_message)) < 0)
+            {
+                error("Can not write to the socket");
+            }
         }
+
+        if (buffer_file)
+            free(buffer_file);
+        if (file)
+            free(file);
+        if (reply)
+            free(reply);
 
         if (close(new_sockfd) < 0)
         { // After close socket will have somtime before it unbind from a port
@@ -221,7 +237,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    // safe_exit:
     if (close(sockfd) < 0)
     {
         error("Can not close socket");
